@@ -1,0 +1,15 @@
+{
+  "name": "JwtAuthExample",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "init:typeorm": "typeorm init --name server --database postgres"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typeorm": "^0.2.24"
+  }
+}

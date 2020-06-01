@@ -5,6 +5,6 @@ export async function verifyPassword(attemptedPassword: string, actualPassword: 
   if (!passwordIsValid) throw Error('Invalid password')
 }
 
-export async function hashPassword(password: string) {
-  return await hash(password, 12)
+export function hashPassword(password: string): Promise<string> {
+  return hash(password, 12)
 }

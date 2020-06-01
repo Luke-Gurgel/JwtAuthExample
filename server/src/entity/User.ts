@@ -19,3 +19,8 @@ export default class User extends BaseEntity {
   @Column('int', { default: 0 })
   tokenVersion: number;
 }
+
+export async function incrementTokenVersionForUser(user: User) {
+  user.tokenVersion += 1
+  await user.save()
+}

@@ -1,12 +1,11 @@
-import User from '../entity/User'
 import { Context, LoginResponse } from '../types'
 import { authMiddleware } from '../middleware/auth'
 import { verifyPassword, hashPassword } from '../services/password'
+import User, { incrementTokenVersionForUser } from '../entity/User'
 import {
   createAccessToken,
   createRefreshToken,
   setRefreshTokenCookie,
-  incrementTokenVersionForUser
 } from '../services/jwt'
 import {
   Ctx,
@@ -50,7 +49,6 @@ export class UserResolver {
       await User.insert({ email, password: hashedPassword })
       return true
     } catch (error) {
-      console.log(error);
       return false
     }
   }
@@ -66,11 +64,10 @@ export class UserResolver {
       if (!user) throw Error('User not found')
       await verifyPassword(password, user.password)
 
-      user.tokenVersion += 1
+      await incrementTokenVersionForUser(user)
       const accessToken = createAccessToken(user)
       const refreshToken = createRefreshToken(user)
       setRefreshTokenCookie(res, refreshToken)
-      await incrementTokenVersionForUser(user)
 
       return { accessToken, user }
     } catch (err) {

@@ -1,10 +1,9 @@
-import User from '../entity/User'
-import { getConnection } from 'typeorm'
-import { Response, Request } from 'express'
 import { sign, verify } from 'jsonwebtoken'
+import { Response, Request } from 'express'
+import User, { incrementTokenVersionForUser } from '../entity/User'
 
 export function createAccessToken({ id, tokenVersion }: User) {
-  return sign({ tokenVersion, userId: id }, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: '15s' })
+  return sign({ tokenVersion, userId: id }, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: '5m' })
 }
 
 export function createRefreshToken({ id, tokenVersion }: User) {
@@ -17,10 +16,6 @@ export function setRefreshTokenCookie(res: Response, refreshToken: string) {
     refreshToken,
     { httpOnly: true, path: '/refresh_token' }
   )
-}
-
-export async function incrementTokenVersionForUser({ id }: User) {
-  await getConnection().getRepository(User).increment({ id }, 'tokenVersion', 1)
 }
 
 export async function getNewJwtPair(req: Request, res: Response) {
@@ -39,11 +34,10 @@ export async function getNewJwtPair(req: Request, res: Response) {
       throw Error('Refresh token version is invalid')
     }
 
-    user.tokenVersion += 1
+    await incrementTokenVersionForUser(user)
     const newAccessToken = createAccessToken(user)
     const newRefreshToken = createRefreshToken(user)
     setRefreshTokenCookie(res, newRefreshToken)
-    await incrementTokenVersionForUser(user)
     return res.send({ ok: true, accessToken: newAccessToken })
   } catch (err) {
     console.log(err);
